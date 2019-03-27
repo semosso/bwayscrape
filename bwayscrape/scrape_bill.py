@@ -44,17 +44,7 @@ def get_playbill(show):
     image_file.write(chunk)
   image_file.close()
 
-  # TODO:
-  # p1: eliminar duplicidades (funções pra repetido); aprender a usar path direito;
-  # p2: entender "raise_for_status"; add comments all around; "pular" quando não houver playbill
-  # (procurar Google imagens; brute force site no playbill (e.g., chick flick); broadway.com)
-
-def get_songs(show):
-  url = "https://www.ibdb.com/" # lista de músicas, somente para broadway e musicais
-                                # figure out os if-then depois
-  pass
-
-# show input can be by argv or CSV
+# input can be by argv or CSV
 # ARGV
 show = "+".join(sys.argv[1:])
 get_playbill(show)
@@ -69,3 +59,8 @@ for i in listz:
 
 # CSV for real this time
 # to come
+
+  # TODO:
+  # p1: eliminar duplicidades (funções repetidas como em autolog?); aprender a usar path direito;
+  # p2: entender "raise_for_status"; add comments all around; entender regex em ln 17
+  # "pular" quando não tiver (Google imagens; brute force site playbill (e.g., chick flick); broadway.com)
