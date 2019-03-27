@@ -36,6 +36,7 @@ def get_playbill(show):
   # aprender a usar path direito (não dá pra ficar dependendo de .., precisa ser absolute);
   # p2: entender "raise_for_status"; better name for file in ln 27; add comments all around;
   # "pular" quando não houver playbill disponível (ou melhor, procurar Google imagens);
+  # tentar brute force achar site no playbill (e.g., chick flick?); broadway.com para playbills tbm
 
 show = "+".join(sys.argv[1:])
 get_playbill(show)
