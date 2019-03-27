@@ -4,14 +4,14 @@ import requests
 import bs4
 
 # baixar imagem do playbill
-def getPlaybill(show):
-  search_url = ("http://www.playbill.com/productions?q=" + show)
+def get_playbill(show):
+  search_url = ("http://www.playbill.com/searchpage/search?q=" + show + "&sort=Relevance&shows=on")
     
   req_search = requests.get(search_url) # this downloads entire page
   req_search.raise_for_status() # maybe work on Exception message? repeats below
   
   soup_search = bs4.BeautifulSoup(req_search.text, "html.parser") # this parses what has been downloaded
-  show_element = soup_search.select_one(".pb-pl-tile-text-box > a")
+  show_element = soup_search.select_one(".bsp-list-promo-title > a")
   show_url = show_element.get("href")
 
   req_show = requests.get("http://www.playbill.com" + show_url)
@@ -31,13 +31,14 @@ def getPlaybill(show):
   image_file.close()
 
   # TODO:
-  # p1: revisar e melhorar, eliminar duplicidades; show and confirm search results in ln 14;
+  # p1: revisar e melhorar, eliminar duplicidades; show and confirm search results in ln 14
+  # (maybe bsp-list-promo-title na busca geral, mostrando os nomes, seja a resposta);
   # aprender a usar path direito (não dá pra ficar dependendo de .., precisa ser absolute);
   # p2: entender "raise_for_status"; better name for file in ln 27; add comments all around;
   # "pular" quando não houver playbill disponível (ou melhor, procurar Google imagens);
 
 show = "+".join(sys.argv[1:])
-getPlaybill(show)
+get_playbill(show)
 
 # def getSongs(show):
 #   url = "https://www.ibdb.com/" # lista de músicas, somente para broadway
