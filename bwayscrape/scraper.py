@@ -4,7 +4,7 @@ import requests
 import bs4
 
 # baixar imagem do playbill
-def getPlaybill (show):
+def getPlaybill(show):
   search_url = ("http://www.playbill.com/productions?q=" + show)
     
   req_search = requests.get(search_url) # this downloads entire page
