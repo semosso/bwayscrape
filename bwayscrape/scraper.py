@@ -32,6 +32,7 @@ def getPlaybill(show):
 
   # TODO:
   # p1: revisar e melhorar, eliminar duplicidades; show and confirm search results in ln 14;
+  # aprender a usar path direito (não dá pra ficar dependendo de .., precisa ser absolute);
   # p2: entender "raise_for_status"; better name for file in ln 27; add comments all around;
   # "pular" quando não houver playbill disponível (ou melhor, procurar Google imagens);
 
