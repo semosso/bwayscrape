@@ -18,7 +18,8 @@ def get_playbill(show):
   
   if n == 0:
     print(f"There isn't a Playbill.com page for a show based on {sys.argv[1:]} keywords.")
-    exit(1)
+    exit(1) # só "funciona" se eu input por argv input; se CSV, fecha o programa mas quero que continue
+            # quebrar funções em mais de uma "resolve" esse problema (uma acha o site, outra pega imagem)
   elif n > 1:
     print("Pick which show (by index):")
     for i in range(n):
@@ -49,16 +50,16 @@ def get_playbill(show):
 
 # input can be by argv or CSV
 # ARGV
-show = "+".join(sys.argv[1:])
-get_playbill(show)
+# show = "+".join(sys.argv[1:])
+# get_playbill(show)
 
 # CSV (nas coxas, not actual CSV file)
-# file_CSV = open("source.txt").read()
-# show_list = file_CSV.split(",")
+file_CSV = open("source.txt").read()
+show_list = file_CSV.split(",")
 
-# for i in show_list:
-#   show = i
-#   get_playbill(show)
+for i in show_list:
+  show = i
+  get_playbill(show)
 
 # CSV for real this time
 # to come
