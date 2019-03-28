@@ -2,7 +2,6 @@ import os
 import sys
 import requests
 import bs4 # seems I could import only BeautifulSoup from bs4; why not?
-import re
 
 # baixar imagem do playbill
 def get_playbill(show):
@@ -14,7 +13,9 @@ def get_playbill(show):
   soup_search = bs4.BeautifulSoup(req_search.text, "html.parser") # this parses what has been downloaded
   matches = soup_search.select(".bsp-list-promo-title > a")
   n = len(matches)
-  results = [re.compile("\s+").sub(" ", a.text).strip() for a in matches] # entender em detalhes depois
+  results = [a.text.strip() for a in matches]
+  # entendendo ln acima: each "a in matches" is a bs4.Tag element, so a.text returns their text
+  # all strip does is remove leading/trailing whitespaces; originally I was using regex, but don't need it here
   
   if n == 0:
     print(f"There isn't a Playbill.com page for a show based on {sys.argv[1:]} keywords.")
@@ -48,18 +49,18 @@ def get_playbill(show):
     image_file.write(chunk)
   image_file.close()
 
-# input can be by argv or CSV
+#input can be by argv or CSV
 # ARGV
-# show = "+".join(sys.argv[1:])
-# get_playbill(show)
+show = "+".join(sys.argv[1:])
+get_playbill(show)
 
 # CSV (nas coxas, not actual CSV file)
-file_CSV = open("source.txt").read()
-show_list = file_CSV.split(",")
+# file_CSV = open("source.txt").read()
+# show_list = file_CSV.split(",")
 
-for i in show_list:
-  show = i
-  get_playbill(show)
+# for i in show_list:
+#   show = i
+#   get_playbill(show)
 
 # CSV for real this time
 # to come
