@@ -1,7 +1,7 @@
 import os
 import sys
 import requests
-import bs4
+import bs4 # seems I could import only BeautifulSoup from bs4; why not?
 import re
 
 # baixar imagem do playbill
@@ -9,17 +9,20 @@ def get_playbill(show):
   url = ("http://www.playbill.com/searchpage/search?q=" + show + "&sort=Relevance&shows=on")
     
   req_search = requests.get(url) # this downloads entire page
-  req_search.raise_for_status() # maybe work on Exception message? repeats below
+  req_search.raise_for_status()
   
   soup_search = bs4.BeautifulSoup(req_search.text, "html.parser") # this parses what has been downloaded
   matches = soup_search.select(".bsp-list-promo-title > a")
   n = len(matches)
-  lista = [re.compile("\s+").sub(" ", a.text).strip() for a in matches] # entender em detalhes depois
+  results = [re.compile("\s+").sub(" ", a.text).strip() for a in matches] # entender em detalhes depois
   
-  if n > 1:
+  if n == 0:
+    print(f"There isn't a Playbill.com page for a show based on {sys.argv[1:]} keywords.")
+    exit(1)
+  elif n > 1:
     print("Pick which show (by index):")
     for i in range(n):
-      print(f"{i}. {lista[i]}")
+      print(f"{i}. {results[i]}")
     choice = int(input("> "))
   else:
     choice = 0
@@ -37,8 +40,8 @@ def get_playbill(show):
   req_bill = requests.get(bill_url) # downloading image
   req_bill.raise_for_status()
 
-  print(f"Downloading the playbill for {lista[choice]}...")
-  image_file = open(os.path.join("..", "data", "playbills", f"{lista[choice]}.jpg"), "wb")
+  print(f"Downloading the playbill for {results[choice]}...")
+  image_file = open(os.path.join("..", "data", "playbills", f"{results[choice]}.jpg"), "wb")
    
   for chunk in req_bill.iter_content(100000):
     image_file.write(chunk)
@@ -50,17 +53,17 @@ show = "+".join(sys.argv[1:])
 get_playbill(show)
 
 # CSV (nas coxas, not actual CSV file)
-show_list = open("source.txt").read()
-listz = show_list.split(",")
+# file_CSV = open("source.txt").read()
+# show_list = file_CSV.split(",")
 
-for i in listz:
-  show = i
-  get_playbill(show)
+# for i in show_list:
+#   show = i
+#   get_playbill(show)
 
 # CSV for real this time
 # to come
 
   # TODO:
   # p1: eliminar duplicidades (funções repetidas como em autolog?); aprender a usar path direito;
-  # p2: entender "raise_for_status"; add comments all around; entender regex em ln 17
-  # "pular" quando não tiver (Google imagens; brute force site playbill (e.g., chick flick); broadway.com)
+  # p2: add comments all around; entender regex em ln 17; e quando não tiver playbill disponível?
+  # try Google imagens, brute force site playbill (e.g., chick flick), broadway.com
