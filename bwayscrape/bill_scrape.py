@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 import sys
 import requests
 import bs4 # seems I could import only BeautifulSoup from bs4; why not?
@@ -43,27 +43,25 @@ def get_playbill(show):
   req_bill.raise_for_status()
 
   print(f"Downloading the playbill for {results[choice]}...")
-  image_file = open(os.path.join("..", "data", "playbills", f"{results[choice]}.jpg"), "wb")
+  bill_folder = Path("Users/vinicius/projects/bwayscrape/data/playbills")
+  image_file = open(bill_folder / f"{results[choice]}.jpg", "wb") # will this work or do I have to break it up?
    
   for chunk in req_bill.iter_content(100000):
     image_file.write(chunk)
   image_file.close()
 
-#input can be by argv or CSV
-# ARGV
-# show = "+".join(sys.argv[1:])
-# get_playbill(show)
+## input can be by argv or CSV
+## ARGV
+show = "+".join(sys.argv[1:])
+get_playbill(show)
 
-#CSV
-file_CSV = open("CSV-file.txt").read()
-show_list = file_CSV.split("\n")
+## CSV
+# file_CSV = open("CSV-file.txt").read()
+# show_list = file_CSV.split("\n")
 
-for i in show_list:
-  show = i
-  get_playbill(show)
-
-# CSV for real this time
-# to come
+# for i in show_list:
+#   show = i
+#   get_playbill(show)
 
   # TODO:
   # p1: eliminar duplicidades (funções repetidas como em autolog?); aprender a usar path direito;
