@@ -3,8 +3,12 @@ import sys
 import requests
 import bs4 # seems I could import only BeautifulSoup from bs4; why not?
 
+PROJECT_FOLDER = Path.cwd().parent # should this be globally defined in every module, or is one enough? read on scopes
+BILL_FOLDER = PROJECT_FOLDER / "data" / "playbills"
+BILL_FOLDER.mkdir(exist_ok=True, parents=True)
+
 # baixar imagem do playbill
-def get_playbill(show):
+def find_site(show):
   url = ("http://www.playbill.com/searchpage/search?q=" + show + "&sort=Relevance&shows=on")
     
   req_search = requests.get(url) # this downloads entire page
@@ -43,25 +47,14 @@ def get_playbill(show):
   req_bill.raise_for_status()
 
   print(f"Downloading the playbill for {results[choice]}...")
-  bill_folder = Path("Users/vinicius/projects/bwayscrape/data/playbills")
-  image_file = open(bill_folder / f"{results[choice]}.jpg", "wb") # will this work or do I have to break it up?
-   
+  image_file = open(f"{BILL_FOLDER}/{results[choice]}.jpg", "wb") # will this work or do I have to break it up?
+
   for chunk in req_bill.iter_content(100000):
     image_file.write(chunk)
   image_file.close()
 
-## input can be by argv or CSV
-## ARGV
-show = "+".join(sys.argv[1:])
-get_playbill(show)
-
-## CSV
-# file_CSV = open("CSV-file.txt").read()
-# show_list = file_CSV.split("\n")
-
-# for i in show_list:
-#   show = i
-#   get_playbill(show)
+def find_playbill(show, site):
+  pass
 
   # TODO:
   # p1: eliminar duplicidades (funções repetidas como em autolog?); aprender a usar path direito;
