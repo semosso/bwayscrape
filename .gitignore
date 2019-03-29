@@ -5,3 +5,5 @@ bin/
 .DS_Store
 .vscode
 data/
+CSV-file.txt
+Messy-source.txt
