@@ -1,62 +1,102 @@
 from pathlib import Path
 import sys
 import requests
-import bs4 # seems I could import only BeautifulSoup from bs4; why not?
+import bs4 
 
-PROJECT_FOLDER = Path.cwd().parent # should this be globally defined in every module, or is one enough? read on scopes
+PROJECT_FOLDER = Path.cwd().parent
 BILL_FOLDER = PROJECT_FOLDER / "data" / "playbills"
 BILL_FOLDER.mkdir(exist_ok=True, parents=True)
 
 # baixar imagem do playbill
-def find_site(show):
-  url = ("http://www.playbill.com/searchpage/search?q=" + show + "&sort=Relevance&shows=on")
+def find_site(show, indice):
+  search_source = [
+  f"http://www.playbill.com/searchpage/search?q={show}&sort=Relevance&shows=on",
+  f"https://www.broadway.com/search/?q={show}&category=shows",
+  f"https://www.broadwayworld.com/search/index.php?search_type%5B%5D=shows&q={show}"
+  ]
+
+  show_HTML = [
+    ".bsp-list-promo-title > a",
+    # FIGURE OUT 1,
+    # FIGURE OUT 2
+  ]
+
+  url = search_source[indice]
     
-  req_search = requests.get(url) # this downloads entire page
+  req_search = requests.get(url)
   req_search.raise_for_status()
+  soup_search = bs4.BeautifulSoup(req_search.text, "html.parser")
+  matches = soup_search.select(show_HTML[indice])
   
-  soup_search = bs4.BeautifulSoup(req_search.text, "html.parser") # this parses what has been downloaded
-  matches = soup_search.select(".bsp-list-promo-title > a")
   n = len(matches)
-  results = [a.text.strip() for a in matches]
-  # entendendo ln acima: each "a in matches" is a bs4.Tag element, so a.text returns their text
-  # all strip does is remove leading/trailing whitespaces; originally I was using regex, but don't need it here
-  
+
   if n == 0:
-    print(f"There isn't a Playbill.com page for a show based on {sys.argv[1:]} keywords.")
-    exit(1) # só "funciona" se eu input por argv input; se CSV, fecha o programa mas quero que continue
-            # quebrar funções em mais de uma "resolve" esse problema (uma acha o site, outra pega imagem)
-  elif n > 1:
-    print("Pick which show (by index):")
-    for i in range(n):
-      print(f"{i}. {results[i]}")
-    choice = int(input("> "))
+    indice += 1
+
+    if indice <= 2:
+      print(f"Wait a little longer, trying to find the playbill in other sources...")
+      find_site(show, indice)
+    else:
+      show, show_url, indice = 0, 0, 0
+  
+  elif n == 1:
+    show_url = matches[0].get("href") # SHOULDN'T CHANGE BETWEEN SITES, BUT YOU NEVER KNOW...
+    show = matches[0].text.strip()
+  
   else:
-    choice = 0
+    results = [a.text.strip() for a in matches] # works for playbill, but who knows for other ones...
+    
+    print("Pick which show (by index):")
+    for i in range(min(n, 10)):
+      print(f"{i}. {results[i]}")
+    
+    choice = int(input("> "))
+    show = results[choice]
+    show_url = matches[choice].get("href") # SHOULDN'T CHANGE BETWEEN SITES, BUT YOU NEVER KNOW... 
+
+  return show, show_url, indice
   
-  show_url = matches[choice].get("href")
-
-  # I could get playbill IMG directly from show_url, but it'd be a lower quality
-  req_show = requests.get("http://www.playbill.com" + show_url)
-  req_show.raise_for_status()
+def find_playbill(show, show_url, indice):
+  show_source = [
+    f"http://www.playbill.com{show_url}",
+    # FIGURE OUT 1,
+    # FIGURE OUT 2
+    ]
   
-  soup_show = bs4.BeautifulSoup(req_show.text, "html.parser")
-  bill = soup_show.select_one('meta[property="og:image"]')
-  bill_url = bill.get("content")
+  playbill_HTML = [
+    'meta[property="og:image"]',
+    # FIGURE OUT 1,
+    # FIGURE OUT 2
+  ]
   
-  req_bill = requests.get(bill_url) # downloading image
-  req_bill.raise_for_status()
+  playbill_URL = [
+    "content",
+    # FIGURE OUT 1,
+    # FIGURE OUT 2
+  ]
 
-  print(f"Downloading the playbill for {results[choice]}...")
-  image_file = open(f"{BILL_FOLDER}/{results[choice]}.jpg", "wb") # will this work or do I have to break it up?
+  if (show == 0): # how to make it match all three params?
+    print(f"Couldn't find a playbill based on {sys.argv[1:]} keywords :(")
+    exit(1)
 
-  for chunk in req_bill.iter_content(100000):
-    image_file.write(chunk)
-  image_file.close()
+  else:
+    req_show = requests.get(show_source[indice])
+    req_show.raise_for_status()
+  
+    soup_show = bs4.BeautifulSoup(req_show.text, "html.parser")
+    bill = soup_show.select_one(playbill_HTML[indice])
+    bill_url = bill.get(playbill_URL[indice])
+  
+    req_bill = requests.get(bill_url)
+    req_bill.raise_for_status()
 
-def find_playbill(show, site):
-  pass
+    image_file = open(f"{BILL_FOLDER}/{show}.jpg", "wb") 
+
+    for chunk in req_bill.iter_content(100000):
+      image_file.write(chunk)
+    image_file.close()
+    print(f"Playbill for '{show}' has been downloaded!")
 
   # TODO:
   # p1: eliminar duplicidades (funções repetidas como em autolog?); aprender a usar path direito;
-  # p2: add comments all around; entender regex em ln 17; e quando não tiver playbill disponível?
-  # try Google imagens, brute force site playbill (e.g., chick flick), broadway.com
+  # p2: add comments all around
