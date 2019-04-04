@@ -45,7 +45,7 @@ def find_site(show, indice):
   else: # i.e., if multiple (> 1) shows were found, prints a list and lets me choose between them
     results = [a.text.strip() for a in matches] # takes away all HTML, returns only text
     print("Pick which show (by index):")
-    for i in range(min(n, 10)):
+    for i in range(min(n, 15)):
       print(f"{i}. {results[i]}")
     
     choice = int(input("> "))
